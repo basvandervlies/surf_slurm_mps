@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+## @SURF slurmd prolog to enable MPS on all graphic cards
+#
+CGROUP_DEVICES=/sys/fs/cgroup/devices/slurm
+NVIDIA_MAJOR=195
+
+SURF_JOB_MPS_CACHE_DIR=/run/surf_mps
+SURF_JOB_MPS_STATE_DIR=${SURF_JOB_MPS_CACHE_DIR}/state
+
+GPU_CARD_SELECTED=""
+
+## BEGIN Functions
+#
+function check_user
+{
+    ## This users are allowd to use: --gres=mps:<number>
+    case ${SLURM_JOB_USER} in
+        lcur*|jhl*)
+            return 0
+            ;;
+        bas|jaap|casparl)
+            return 0
+            ;;
+        *)
+            exit 0
+    esac
+}
+
+function cache_dir_create
+{
+    if [[ ! -d ${SURF_JOB_MPS_CACHE_DIR} ]]
+    then
+        mkdir --parents {SURF_JOB_MPS_STATE_DIR}
+    fi
+}
+
+function cache_state_dir_clean
+{
+    ## remove dangling links they point to finished jobs
+    if [[ -d ${SURF_JOB_MPS_STATE_DIR} ]]
+    then
+        symlinks -d ${SURF_JOB_MPS_STATE_DIR}
+    fi
+}
+
+function gpu_card_select
+{
+    local gpu_lowest_proc_count
+    local gpu_card_selected
+    local gpu_card_lastest
+    local gpu_count
+
+    gpu_lowest_proc_count=999999
+
+    gpu_count=$(nvidia-smi --list-gpus | wc --lines)
+    gpu_count=$((gpu_count - 1))
+
+    for i in `seq 0 ${gpu_count}`
+    do
+        count=$(ls -l ${SURF_JOB_MPS_STATE_DIR}/*gpu$i | wc --lines)
+        if [[ ${count} -eq 0 ]]
+        then
+            gpu_card_selected=$i
+            break
+        else
+            if [[ ${count} -lt ${gpu_lowest_proc_count} ]]
+            then
+                gpu_card_selected=$i
+                gpu_lowest_proc_count=${count}
+            fi
+        fi
+    done
+
+    if [[ -d ${SURF_JOB_MPS_CACHE_DIR} ]]
+    then
+        ln --force --symbolic ${CGROUP_DEVICES}/uid_${SLURM_JOB_UID}/job_${SLURM_JOB_ID} ${SURF_JOB_MPS_STATE_DIR}/${SLURM_JOB_USER}_${SLURM_JOB_ID}_gpu${gpu_card_selected}
+        echo "c ${NVIDIA_MAJOR}:${gpu_card_selected} rw" > ${SURF_JOB_MPS_CACHE_DIR}/${SLURM_JOB_UID}_${SLURM_JOB_ID}
+    fi
+}
+
+if [[ ! -z ${CUDA_MPS_ACTIVE_THREAD_PERCENTAGE} ]]
+then
+    # Easy test for some users
+    #check_user
+    cache_dir_create
+    cache_state_dir_clean
+    gpu_card_select
+fi
+exit 0
+

@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+## @SURF slurmd epilog to enable MPS on all graphic cards
+#
+SURF_JOB_MPS_CACHE_DIR=/run/surf_mps
+SURF_JOB_MPS_STATE_DIR=${SURF_JOB_MPS_CACHE_DIR}/state
+
+function cache_clean
+{
+    if [[ -d ${SURF_JOB_MPS_STATE_DIR} ]]
+    then
+        ## remove dangling links they point to finished jobs
+        symlinks -d ${SURF_JOB_MPS_STATE_DIR}
+        rm --force -- ${SURF_JOB_MPS_STATE_DIR}/${SLURM_JOB_USER}_${SLURM_JOB_ID}_gpu* ${SURF_JOB_MPS_CACHE_DIR}/${SLURM_JOB_UID}_${SLURM_JOB_ID}
+    fi
+}
+
+if [[ ! -z ${CUDA_MPS_ACTIVE_THREAD_PERCENTAGE} ]]
+then
+    cache_clean
+fi
+exit 0
+
