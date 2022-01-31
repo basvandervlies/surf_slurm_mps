@@ -11,6 +11,9 @@ local posix = require("posix")
 -- constants
 --
 myname = "SURF"
+slurm_cgroups_devices_uid_dir = "/sys/fs/cgroup/devices/slurm/uid_"
+surf_mps_cache_dir = "/run/surf_mps/"
+
 
 --
 -- functions
