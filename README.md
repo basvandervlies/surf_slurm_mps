@@ -66,6 +66,6 @@ For slurm we can only use 1 GPU and the `mps` value is `320`:
 
 
 In the distribution 3 files are included:
- 1. slurmd/prolog/surf\_mps: Select the least loaded GPU and save the state
- 1. lua.d/surf\_mps        : Manipulates the job cgroup
- 1. slurmd/epilog/surf\_mps: Cleanup the state directory
+ 1. `slurmd/prolog/surf_mps`: Select the least loaded GPU and save the state
+ 1. `lua.d/surf_mps`        : Manipulates the job cgroup
+ 1. `slurmd/epilog/surf_mps`: Cleanup the state directory
