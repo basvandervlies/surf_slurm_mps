@@ -31,7 +31,7 @@ function cache_dir_create
 {
     if [[ ! -d ${SURF_JOB_MPS_CACHE_DIR} ]]
     then
-        mkdir --parents {SURF_JOB_MPS_STATE_DIR}
+        mkdir --parents ${SURF_JOB_MPS_STATE_DIR}
     fi
 }
 
