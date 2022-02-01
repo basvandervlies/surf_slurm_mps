@@ -69,3 +69,21 @@ In the distribution 3 files are included:
  1. `slurmd/prolog/surf_mps`: Select the least loaded GPU and save the state
  1. `lua.d/surf_mps`        : Manipulates the job cgroup
  1. `slurmd/epilog/surf_mps`: Cleanup the state directory
+
+## Restrict the mps option with cli_filter.lua
+
+At our site we restrict the slurm `mps` option only for certain reservations. Here is a code snippet how we
+enforce it with `cli_filter.lua`:
+```
+if options.gres ~= nil and string.match(options.gres, "mps") then
+	if options.reservation == nil then
+		slurm.log_info("GRES option:'%s' not allowed", options.gres)
+		return slurm.ERROR
+	else
+		if not(string.match(options.reservation, "jhl_homework_gpu") or string.match(options.reservation, "jupyterhub_course_")) then
+			slurm.log_info("GRES option:'%s' not allowed in this reservation:'%s'", options.gres, options.reservation)
+			return slurm.ERROR
+		end
+	end
+end
+```
