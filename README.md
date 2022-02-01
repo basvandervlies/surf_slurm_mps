@@ -70,7 +70,7 @@ In the distribution 3 files are included:
  1. `lua.d/surf_mps`        : Manipulates the job cgroup
  1. `slurmd/epilog/surf_mps`: Cleanup the state directory
 
-## Restrict the mps option with cli_filter.lua
+### Restrict the mps option with cli_filter.lua
 
 At our site we restrict the slurm `mps` option only for certain reservations. Here is a code snippet how we
 enforce it with `cli_filter.lua`:
