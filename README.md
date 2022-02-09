@@ -67,8 +67,13 @@ For slurm we can only use 1 GPU and the `mps` value is `320`:
 
 In the distribution 3 files are included:
  1. `slurmd/prolog/surf_mps`: Select the least loaded GPU and save the state
- 1. `lua.d/surf_mps`        : Manipulates the job cgroup
+ 1. `lua.d/surf_mps.lua`        : Manipulates the job cgroup
  1. `slurmd/epilog/surf_mps`: Cleanup the state directory
+
+
+`Note:` when the [slurm-spank-lua](https://github.com/stanford-rc/slurm-spank-lua) has been compiled with lua version > 5.1. You can only
+run 1 lua script. If there is already a lua script installed  then you have to merge the `surf_mps.lua` script.
+
 
 ### Restrict the mps option with cli_filter.lua
 
