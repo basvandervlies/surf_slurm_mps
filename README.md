@@ -11,6 +11,7 @@ multiple GPUs per node and we want to use all the GPUs in this node for sharing.
 
 We managed to share all the GPUs in a node with the aid of the lua spank plugin:
  * https://github.com/stanford-rc/slurm-spank-lua
+ * Version >=0.44 is required for lua version => 5.2
 
 In short we reuse the SLURM mps feature. We let SLURM schedule jobs on the node and with the combination
 of slurmd prolog/epilog and the lua plugin we wrote our own GPU scheduler:
@@ -69,11 +70,6 @@ In the distribution 3 files are included:
  1. `slurmd/prolog/surf_mps`: Select the least loaded GPU and save the state
  1. `lua.d/surf_mps.lua`        : Manipulates the job cgroup
  1. `slurmd/epilog/surf_mps`: Cleanup the state directory
-
-
-`Note:` when the [slurm-spank-lua](https://github.com/stanford-rc/slurm-spank-lua) has been compiled with lua version > 5.1. You can only
-run 1 lua script. If there is already a lua script installed  then you have to merge the `surf_mps.lua` script.
-
 
 ### Restrict the mps option with cli_filter.lua
 
