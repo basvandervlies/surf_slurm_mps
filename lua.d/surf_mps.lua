@@ -10,10 +10,12 @@ local posix = require("posix")
 --
 -- constants
 --
-myname = "SURF"
+myname = "SURF_MPS"
 slurm_cgroups_devices_uid_dir = "/sys/fs/cgroup/devices/slurm/uid_"
 surf_mps_cache_dir = "/run/surf_mps/"
 
+-- This NVIDIA device 0 defined as major:minor
+gpu_device_device_remove="c 195:0 rw"
 
 --
 -- functions
@@ -79,9 +81,9 @@ function slurm_spank_task_init_privileged (spank)
 
     gpu_selected_file = surf_mps_cache_dir .. job_uid .. '_' .. job_id
     if isfile(gpu_selected_file) then
-        SPANK.log_info("%s:GPU sharing activated uid:job_id:job_stepid (%d:%d:%d)", fn, job_uid, job_id, job_stepid)
+        SPANK.log_info("%s: %s:GPU sharing activated uid:job_id:job_stepid (%d:%d:%d)", myname, fn, job_uid, job_id, job_stepid)
     else
-        SPANK.log_info("%s:GPU sharing not needed", fn)
+        SPANK.log_info("%s: %s:GPU sharing not needed", myname, fn)
         return 0
     end
 
@@ -106,9 +108,9 @@ function slurm_spank_task_init_privileged (spank)
         --[[
         -- Remove the devices that SLURM has set always device zero
         ]]--
-        SPANK.log_info("%s: removing gpu0 for: %s", fn, job_deny)
+        SPANK.log_info("%s: %s: removing gpu0 for: %s", myname, fn, job_deny)
         local f = io.open(job_deny, "w")
-        f:write("c 195:0 rw")
+        f:write(gpu_device_device_remove)
         f:close()
 
         --[[
@@ -123,23 +125,23 @@ function slurm_spank_task_init_privileged (spank)
         f:close()
         gpu = string.gsub(gpu, "\n$", "")
 
-        SPANK.log_info("%s: adding '%s' to '%s'", fn, gpu, uid_allow)
+        SPANK.log_info("%s: %s: adding '%s' to '%s'", myname, fn, gpu, uid_allow)
         local f = io.open(uid_allow, "w")
         f:write(gpu)
         f:close()
 
-        SPANK.log_info("%s: adding '%s' to '%s'", fn, gpu, job_allow)
+        SPANK.log_info("%s: %s: adding '%s' to '%s'", myname, fn, gpu, job_allow)
         local f = io.open(job_allow, "w")
         f:write(gpu)
         f:close()
 
-        SPANK.log_info("%s: adding '%s' to '%s'", fn, gpu, prog_allow)
+        SPANK.log_info("%s: %s: adding '%s' to '%s'", myname, fn, gpu, prog_allow)
         local f = io.open(prog_allow, "w")
         f:write(gpu)
         f:close()
 
     else
-        SPANK.log_info("%s: NOT cgroups_dir = %s", fn, cgroups_dir)
+        SPANK.log_info("%s: %s: NOT cgroups_dir = %s", myname, fn, cgroups_dir)
     end
     return 0
 end
