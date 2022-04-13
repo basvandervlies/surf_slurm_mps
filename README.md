@@ -20,6 +20,8 @@ of slurmd prolog/epilog and the lua plugin we wrote our own GPU scheduler:
  * The state of scheduler is saved in `/run/surf_mps`
  * Each job has the same mps share.
 
+The plugin has been tested for slurm major version 20.11 and 21.05
+
 Note: the setup can not constrain the memory used on the GPUs. The way to constrain the memory is in:
  * pytorch
 ```
