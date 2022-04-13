@@ -100,8 +100,10 @@ function slurm_spank_task_init_privileged (spank)
 
         if (job_stepid >= 0) then
             prog_allow = cgroups_job_dir .. '/step_' .. job_stepid .. '/devices.allow'
+            task_allow = cgroups_job_dir .. '/step_' .. job_stepid .. '/task_0/devices.allow'
         else
             prog_allow = cgroups_job_dir .. '/step_batch/devices.allow'
+            task_allow = cgroups_job_dir .. '/step_batch/task_0/devices.allow'
         end
 
 
@@ -139,6 +141,16 @@ function slurm_spank_task_init_privileged (spank)
         local f = io.open(prog_allow, "w")
         f:write(gpu)
         f:close()
+
+        --[[
+        -- slurm versions 21.08 and higher use an extra level
+        ]]--
+        if isfile(task_allow) then
+            SPANK.log_info("%s: %s: adding '%s' to '%s'", myname, fn, gpu, task_allow)
+            local f = io.open(task_allow, "w")
+            f:write(gpu)
+            f:close()
+        end
 
     else
         SPANK.log_info("%s: %s: NOT cgroups_dir = %s", myname, fn, cgroups_dir)
